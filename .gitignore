@@ -1,0 +1,30 @@
+# Python / Ape
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ape/
+.build/
+build/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+frontend/.next/
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# TypeScript
+frontend/*.tsbuildinfo
+next-env.d.ts
