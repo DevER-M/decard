@@ -388,6 +388,102 @@ wheels = [
 ]
 
 [[package]]
+name = "ape-etherscan"
+version = "0.8.6"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.10' and implementation_name == 'cpython'",
+    "python_full_version < '3.10' and implementation_name == 'pypy'",
+    "python_full_version < '3.10' and implementation_name != 'cpython' and implementation_name != 'pypy'",
+]
+dependencies = [
+    { name = "eth-ape", version = "0.8.42", source = { registry = "https://pypi.org/simple" } },
+    { name = "ethpm-types", version = "0.6.29", source = { registry = "https://pypi.org/simple" } },
+    { name = "requests", version = "2.32.5", source = { registry = "https://pypi.org/simple" } },
+    { name = "yarl", version = "1.22.0", source = { registry = "https://pypi.org/simple" } },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/54/4e/0d0c0ed0dafd1b5cc49d06e1c888ce90997da7dba49987d4a0811b5942e2/ape_etherscan-0.8.6.tar.gz", hash = "sha256:315715f8764f53bed9025d97de4ab2fc4a42acad48db207b2c1719f5f10d9a6d", size = 106381, upload-time = "2026-04-29T04:41:58.316Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/47/1c/8f18f2ceeb14cf9603c4091ce3a53ad998b1c571d09a547da859701ea22e/ape_etherscan-0.8.6-py3-none-any.whl", hash = "sha256:e384b73f7f957e814a51405e83047e0d2094acf04d55e8f74306c0f3747c5e35", size = 27673, upload-time = "2026-04-29T04:41:57.159Z" },
+]
+
+[[package]]
+name = "ape-etherscan"
+version = "0.8.7"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.12' and implementation_name == 'cpython'",
+    "python_full_version >= '3.12' and implementation_name == 'pypy'",
+    "python_full_version >= '3.12' and implementation_name != 'cpython' and implementation_name != 'pypy'",
+    "python_full_version == '3.11.*' and implementation_name == 'cpython'",
+    "python_full_version == '3.11.*' and implementation_name == 'pypy'",
+    "python_full_version == '3.11.*' and implementation_name != 'cpython' and implementation_name != 'pypy'",
+    "python_full_version == '3.10.*' and implementation_name == 'cpython'",
+    "python_full_version == '3.10.*' and implementation_name == 'pypy'",
+    "python_full_version == '3.10.*' and implementation_name != 'cpython' and implementation_name != 'pypy'",
+]
+dependencies = [
+    { name = "eth-ape", version = "0.8.51", source = { registry = "https://pypi.org/simple" } },
+    { name = "ethpm-types", version = "0.6.31", source = { registry = "https://pypi.org/simple" } },
+    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" } },
+    { name = "yarl", version = "1.24.5", source = { registry = "https://pypi.org/simple" } },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/1d/19/cb57978750db9e23a679eb0b473cd9f9d0f2133e9900112c8ee20a2a8c54/ape_etherscan-0.8.7.tar.gz", hash = "sha256:ea72942e13c1c3a8190ca564cbdcd2f29c21ac80adcb7a72b29872cd3b234ff8", size = 109513, upload-time = "2026-06-01T19:51:53.68Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/59/df/dc9a30bac29c130828d284a702571900bd986e9a80f036935f00c3db156c/ape_etherscan-0.8.7-py3-none-any.whl", hash = "sha256:5d30aab8a8e61e22ee25225a32d3a6206d8d16497510f877f1bfb4df49679095", size = 28453, upload-time = "2026-06-01T19:51:52.288Z" },
+]
+
+[[package]]
+name = "ape-solidity"
+version = "0.8.5"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.10' and implementation_name == 'cpython'",
+    "python_full_version < '3.10' and implementation_name == 'pypy'",
+    "python_full_version < '3.10' and implementation_name != 'cpython' and implementation_name != 'pypy'",
+]
+dependencies = [
+    { name = "eth-ape", version = "0.8.42", source = { registry = "https://pypi.org/simple" } },
+    { name = "eth-pydantic-types", version = "0.2.2", source = { registry = "https://pypi.org/simple" } },
+    { name = "ethpm-types", version = "0.6.29", source = { registry = "https://pypi.org/simple" } },
+    { name = "packaging" },
+    { name = "py-solc-x" },
+    { name = "requests", version = "2.32.5", source = { registry = "https://pypi.org/simple" } },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/4a/9b/41d50b7ec9a06f58f299bbbc003b6d59e16d19050534c216151b7e65c2c8/ape-solidity-0.8.5.tar.gz", hash = "sha256:8200ca4d0d1df0608f14418a16cd98a730d65c3073450ad76e458bfda64e1535", size = 418307, upload-time = "2024-10-29T16:45:14.833Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6d/2e/d07b6dba5a86bfd4f2cced0f5ada112a55dbb886552187ddc86b94aef7d4/ape_solidity-0.8.5-py3-none-any.whl", hash = "sha256:75094fd996ad0914cb2425598e0ec9329adc881050d55b4224d74f75dd994794", size = 29047, upload-time = "2024-10-29T16:45:13.36Z" },
+]
+
+[[package]]
+name = "ape-solidity"
+version = "0.8.6"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.12' and implementation_name == 'cpython'",
+    "python_full_version >= '3.12' and implementation_name == 'pypy'",
+    "python_full_version >= '3.12' and implementation_name != 'cpython' and implementation_name != 'pypy'",
+    "python_full_version == '3.11.*' and implementation_name == 'cpython'",
+    "python_full_version == '3.11.*' and implementation_name == 'pypy'",
+    "python_full_version == '3.11.*' and implementation_name != 'cpython' and implementation_name != 'pypy'",
+    "python_full_version == '3.10.*' and implementation_name == 'cpython'",
+    "python_full_version == '3.10.*' and implementation_name == 'pypy'",
+    "python_full_version == '3.10.*' and implementation_name != 'cpython' and implementation_name != 'pypy'",
+]
+dependencies = [
+    { name = "eth-ape", version = "0.8.51", source = { registry = "https://pypi.org/simple" } },
+    { name = "eth-pydantic-types", version = "0.2.6", source = { registry = "https://pypi.org/simple" } },
+    { name = "ethpm-types", version = "0.6.31", source = { registry = "https://pypi.org/simple" } },
+    { name = "packaging" },
+    { name = "py-solc-x" },
+    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" } },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/28/5c/c729079f980eb3dbcbe3f8acbbdcd4764b85422228880b19670259290a0d/ape_solidity-0.8.6.tar.gz", hash = "sha256:1b0450e845982f1e1eaa132e7c307339f857e9c79bf5e608ed6fd0277bffb18e", size = 422231, upload-time = "2026-06-01T19:57:57.66Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8f/cd/41663de8ba1d2a2c219f329f0efaa1c797634fe0a0d459f69f884f20a51c/ape_solidity-0.8.6-py3-none-any.whl", hash = "sha256:6f03b2bcdcb9c0e894e58ea15d0b27ed09e191b54fa815215a59fc745b57c772", size = 30321, upload-time = "2026-06-01T19:57:56.335Z" },
+]
+
+[[package]]
 name = "asttokens"
 version = "2.4.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1151,12 +1247,20 @@ name = "decard"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "ape-etherscan", version = "0.8.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "ape-etherscan", version = "0.8.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "ape-solidity", version = "0.8.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "ape-solidity", version = "0.8.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "eth-ape", version = "0.8.42", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "eth-ape", version = "0.8.51", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "eth-ape", specifier = ">=0.8.42" }]
+requires-dist = [
+    { name = "ape-etherscan", specifier = ">=0.8.6" },
+    { name = "ape-solidity", specifier = ">=0.8.5" },
+    { name = "eth-ape", specifier = ">=0.8.42" },
+]
 
 [[package]]
 name = "decorator"
@@ -3435,6 +3539,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ba/e5/d9bb73cc981d29446bfc3b547ddc67a1b5d07f27b277add2f46c12392fa0/py-multihash-0.2.3.tar.gz", hash = "sha256:f0ade4de820afdc4b4aaa40464ec86c9da5cae3a4578cda2daab4b0eb7e5b18d", size = 21358, upload-time = "2018-10-20T06:19:41.391Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/31/04/9c0d173afcf3f06149b35de179e0e5d174db2c9e6466bac01215b45e9bb4/py_multihash-0.2.3-py2.py3-none-any.whl", hash = "sha256:a0602c99093587dfbf1634e2e8c7726de39374b0d68587a36093b4c237af6969", size = 7929, upload-time = "2018-10-20T06:19:50.909Z" },
+]
+
+[[package]]
+name = "py-solc-x"
+version = "2.0.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "packaging" },
+    { name = "requests", version = "2.32.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "requests", version = "2.34.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/34/8d/f30778d5f08387cc3f7576aedf4a1e6841caeb8d6d600bb070aa9480b689/py_solc_x-2.0.5.tar.gz", hash = "sha256:2d8440d2be8a5577137fb2313ee211b5b35f36c4c922f274192d34f401616e83", size = 78761, upload-time = "2025-12-10T20:27:51.141Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/4e/37/60ccc88d918d8f1cd218e413fb6263afcde350dc259fb2ba413d9f7d1051/py_solc_x-2.0.5-py3-none-any.whl", hash = "sha256:d6c24b699a7db8f7bf731f32dcfe8c43d7ea9d181191b2a3b7cb5e60395dd449", size = 18750, upload-time = "2025-12-10T20:27:50.033Z" },
 ]
 
 [[package]]

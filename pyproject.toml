@@ -3,5 +3,7 @@ name = "decard"
 version = "0.1.0"
 requires-python = ">=3.9"
 dependencies = [
+    "ape-etherscan>=0.8.6",
+    "ape-solidity>=0.8.5",
     "eth-ape>=0.8.42",
 ]
