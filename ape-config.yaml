@@ -1,0 +1,20 @@
+name: decard
+
+plugins:
+  - name: solidity
+  - name: etherscan
+
+solidity:
+  version: 0.8.24
+  import_remapping:
+    - "@openzeppelin/contracts=openzeppelin/contracts/4.9.6"
+
+ethereum:
+  default_network: local
+  sepolia:
+    default_provider: infura
+
+dependencies:
+  - name: OpenZeppelin
+    github: OpenZeppelin/openzeppelin-contracts
+    version: 4.9.6

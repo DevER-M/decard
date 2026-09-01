@@ -1,0 +1,7 @@
+[project]
+name = "decard"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = [
+    "eth-ape>=0.8.42",
+]
