@@ -12,7 +12,9 @@ solidity:
 ethereum:
   default_network: local
   sepolia:
-    default_provider: infura
+    default_provider: node
+    node:
+      uri: https://ethereum-sepolia-rpc.publicnode.com
 
 dependencies:
   - name: OpenZeppelin
