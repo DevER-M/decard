@@ -4,8 +4,8 @@ import ape
 from ape import accounts, project
 from eth_utils import to_wei
 
-NFT_ADDR = "0x277B0105263e9471d91D1fE0eAb1fEEBDB2C0B83"
-MP_ADDR = "0x40DC222617c8a69DEE34B688E08c74385e81dB97"
+NFT_ADDR = "0x68F2B471CCca503B131D5cDf4D2CC7eAE472AC3a"
+MP_ADDR = "0xFD484e1Bb85d39EcDce0C808fc7d8098803201F7"
 
 # The buyer must be a separate funded Ape keyring account (not the seller),
 # because a seller cannot meaningfully buy their own listing. Create one with:

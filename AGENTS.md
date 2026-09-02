@@ -5,7 +5,7 @@
 A decentralized marketplace where users can **mint, list, and buy** unique Pokémon-style digital game cards on the **Ethereum Sepolia testnet**. Each card is a unique ERC-721 NFT with an image, name, description, and attributes/rarity. Card images and metadata are stored on **IPFS** via **Pinata**.
 
 **Repo:** `git@github.com:DevER-M/decard.git` — branch `main`
-**Status:** Contracts **v1 deployed to Sepolia**, frontend live locally. A **v2 redeploy is pending** to ship the contract fixes in "Previous Issues / Gotchas" (needs the `decard` passphrase, interactive). See "Live Deployment" below.
+**Status:** Contracts **v2 deployed to Sepolia** (transfer-aware `tokensOfOwner` + marketplace buy revalidation live), frontend runs locally against them. See "Live Deployment" below.
 
 ## Tech Stack
 
@@ -21,11 +21,11 @@ A decentralized marketplace where users can **mint, list, and buy** unique Poké
 
 ## Live Deployment (Sepolia)
 
-- **GameCardNFT** (name `GameCardNFT`, symbol `CARD`): `0x277B0105263e9471d91D1fE0eAb1fEEBDB2C0B83`
-- **Marketplace**: `0x40DC222617c8a69DEE34B688E08c74385e81dB97`
+- **GameCardNFT** (name `GameCardNFT`, symbol `CARD`): `0x68F2B471CCca503B131D5cDf4D2CC7eAE472AC3a`
+- **Marketplace**: `0xFD484e1Bb85d39EcDce0C808fc7d8098803201F7`
 - Deployer/owner Ape account: `decard` → `0xa8f4507C897b515950456F28B1587Dbf8A5559F1`
 
-These addresses live in `frontend/.env.local` as `NEXT_PUBLIC_GAME_CARD_ADDRESS` / `NEXT_PUBLIC_MARKETPLACE_ADDRESS` and in `frontend/.env.local.example`. Also mirrored in the ABI constants via `frontend/src/lib/config.ts`.
+These addresses live in `frontend/.env.local` as `NEXT_PUBLIC_GAME_CARD_ADDRESS` / `NEXT_PUBLIC_MARKETPLACE_ADDRESS` and in `frontend/.env.local.example`. Also mirrored in `scripts/integration.py`.
 
 ## Setup & Workflows
 
@@ -37,7 +37,7 @@ Python managed with **uv** (locked v3.12 in `.python-version`). **You MUST activ
 uv sync                      # install env + ape plugins into .venv
 source .venv/bin/activate    # REQUIRED first for every shell
 ape compile
-ape test                     # 17 tests, local EVM
+ape test                     # 21 tests, local EVM
 ```
 
 Plugins `ape-solidity` + `ape-etherscan` are **pinned as project dependencies** in `pyproject.toml` (not just `ape plugins install`), so they are always installed by `uv sync`.
@@ -85,8 +85,8 @@ Wallet connect requires **MetaMask on Sepolia (chainId 11155111)**. Import the `
 6. **Account shows 0 ETH in MetaMask** with multiple "Sepolia" entries: pick the network with **chainId 11155111** and the imported `decard` address; see Live Deployment above.
 7. **Next.js 16 is newer than typical training data** — read `frontend/node_modules/next/dist/docs/` before writing Next-specific code. `frontend/AGENTS.md` is auto-maintained by `next dev`.
 8. **Secrets:** the `decard` seed phrase/passphrase and `PINATA_JWT` are sensitive — never commit them (`.env.local` is gitignored; only `.env.local.example` is committed via force-add).
-9. **`tokensOfOwner` used to be mint-only** — it never reflected marketplace transfers, so the seller's "My Collection" kept showing sold cards and the buyer's didn't show bought ones. **Fixed in v2** by overriding `_beforeTokenTransfer` to add/remove token ids on every mint/burn/transfer. **Requires the pending redeploy** (v1 contract on-chain is still the buggy version).
-10. **Stale listings** — a card listed, then transferred away off-marketplace or with marketplace approval revoked, would fail at `buyCard` with a confusing revert. **Fixed in v2**: `buyCard` revalidates `ownerOf(tokenId) == seller` and marketplace approval before paying (`"Seller no longer owns the card"` / `"Marketplace no longer approved for the card"`). Also requires redeploy.
+9. **`tokensOfOwner` used to be mint-only** — it never reflected marketplace transfers, so the seller's "My Collection" kept showing sold cards and the buyer's didn't show bought ones. **Fixed in v2** by overriding `_beforeTokenTransfer` to add/remove token ids on every mint/burn/transfer. **Live on-chain since the v2 redeploy** (`0x68F2...AC3a`).
+10. **Stale listings** — a card listed, then transferred away off-marketplace or with marketplace approval revoked, would fail at `buyCard` with a confusing revert. **Fixed in v2**: `buyCard` revalidates `ownerOf(tokenId) == seller` and marketplace approval before paying (`"Seller no longer owns the card"` / `"Marketplace no longer approved for the card"`). **Live on-chain since the v2 redeploy** (`0xFD48...01F7`).
 11. **Frontend RPC default** — `frontend/src/lib/wagmi.ts` now uses `https://ethereum-sepolia-rpc.publicnode.com` (same as Ape) instead of viem's flaky default. Override via `NEXT_PUBLIC_RPC_URL`.
 12. **Ape script autocommands** — `scripts/export_abis.py` / any `scripts/*_*.py`: Ape only registers scripts with a `main()` when named as a normal module; underscore-prefixed names are ignored. Use `project.get_contract(name).contract_type.abi` (`model_dump()` each entry) to regenerate `frontend/src/lib/abis/*.json` after contract changes.
 
