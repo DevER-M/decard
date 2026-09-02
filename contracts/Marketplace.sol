@@ -64,12 +64,21 @@ contract Marketplace is ReentrancyGuard {
         address seller = listing.seller;
         address buyer = msg.sender;
         uint256 price = listing.price;
+        IERC721 nft = IERC721(nftContract);
+
+        // Revalidate before paying so a card transferred or un-approved
+        // since listing cannot silently fail midway through the purchase.
+        require(nft.ownerOf(tokenId) == seller, "Seller no longer owns the card");
+        require(
+            nft.getApproved(tokenId) == address(this) || nft.isApprovedForAll(seller, address(this)),
+            "Marketplace no longer approved for the card"
+        );
 
         // Mark inactive before transfers to prevent reentrancy
         listing.active = false;
 
         // Transfer NFT from seller to buyer
-        IERC721(nftContract).transferFrom(seller, buyer, tokenId);
+        nft.transferFrom(seller, buyer, tokenId);
 
         // Send ETH directly to seller
         (bool success, ) = payable(seller).call{value: price}("");

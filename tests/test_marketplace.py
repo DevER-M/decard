@@ -101,6 +101,10 @@ def test_buy_card(listed_card, game_card, marketplace, seller, buyer):
     # NFT ownership transferred
     assert game_card.ownerOf(listed_card) == buyer
 
+    # tokensOfOwner reflects the transfer
+    assert game_card.tokensOfOwner(seller) == []
+    assert game_card.tokensOfOwner(buyer) == [listed_card]
+
     # Listing is no longer active
     _, _, active = marketplace.getListing(game_card.address, listed_card)
     assert active is False
@@ -134,6 +138,23 @@ def test_buy_card_twice_reverts(marketplace, game_card, listed_card, buyer):
 
     with ape.reverts("Card is not listed for sale"):
         marketplace.buyCard(game_card.address, listed_card, sender=buyer, value=price)
+
+
+def test_buy_card_after_seller_transfers_card_away_reverts(listed_card, game_card, marketplace, seller, buyer, accounts):
+    """If the seller transfers the card away off-marketplace, buying reverts."""
+    receiver = accounts[9]
+    game_card.transferFrom(seller, receiver, listed_card, sender=seller)
+
+    with ape.reverts("Seller no longer owns the card"):
+        marketplace.buyCard(game_card.address, listed_card, sender=buyer, value=to_wei("1", "ether"))
+
+
+def test_buy_card_after_seller_revokes_approval_reverts(listed_card, game_card, marketplace, seller, buyer):
+    """Revoking marketplace approval after listing makes buying revert cleanly."""
+    game_card.approve("0x0000000000000000000000000000000000000000", listed_card, sender=seller)
+
+    with ape.reverts("Marketplace no longer approved for the card"):
+        marketplace.buyCard(game_card.address, listed_card, sender=buyer, value=to_wei("1", "ether"))
 
 
 def test_cancel_listing(listed_card, game_card, marketplace, seller):

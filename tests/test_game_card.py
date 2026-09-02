@@ -65,6 +65,30 @@ def test_tokens_of_owner(game_card, minter, accounts):
     assert other_tokens == [3]
 
 
+def test_tokens_of_owner_reflects_transfer(game_card, minter, accounts):
+    other = accounts[2]
+    game_card.mintCard("ipfs://QmUri1", sender=minter)
+    game_card.mintCard("ipfs://QmUri2", sender=minter)
+
+    # Transfer token 1 away
+    game_card.transferFrom(minter, other, 1, sender=minter)
+
+    assert game_card.ownerOf(1) == other
+    assert game_card.tokensOfOwner(minter) == [2]
+    assert game_card.tokensOfOwner(other) == [1]
+
+
+def test_tokens_of_owner_reflects_transfer_back(game_card, minter, accounts):
+    other = accounts[2]
+    game_card.mintCard("ipfs://QmUri1", sender=minter)
+    game_card.transferFrom(minter, other, 1, sender=minter)
+    game_card.transferFrom(other, minter, 1, sender=other)
+
+    assert game_card.ownerOf(1) == minter
+    assert game_card.tokensOfOwner(minter) == [1]
+    assert game_card.tokensOfOwner(other) == []
+
+
 def test_card_minted_event_emitted(game_card, minter):
     meta_uri = "ipfs://QmEventTest"
     receipt = game_card.mintCard(meta_uri, sender=minter)

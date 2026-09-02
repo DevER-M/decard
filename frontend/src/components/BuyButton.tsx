@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useMarketplace } from "../hooks/useMarketplace";
-import { toEth } from "./CardItem";
+import { toEth } from "../lib/format";
 
 interface BuyButtonProps {
   tokenId: bigint;
@@ -11,6 +12,7 @@ interface BuyButtonProps {
 
 export default function BuyButton({ tokenId, price }: BuyButtonProps) {
   const { buyCard } = useMarketplace();
+  const queryClient = useQueryClient();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,6 +21,7 @@ export default function BuyButton({ tokenId, price }: BuyButtonProps) {
     setError(null);
     try {
       await buyCard(tokenId, price);
+      await queryClient.invalidateQueries({ queryKey: ["cards"] });
     } catch (e) {
       setError((e as Error).message);
     } finally {

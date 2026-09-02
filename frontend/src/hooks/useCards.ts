@@ -23,9 +23,10 @@ export interface CardInput {
  */
 export function useCards(inputs: CardInput[]) {
   const ids = inputs.map((i) => i.tokenId.toString()).join(",");
+  const withListing = inputs.every((i) => i.includeListing) ? "L" : "N";
 
   return useQuery({
-    queryKey: ["cards", ids],
+    queryKey: ["cards", ids, withListing],
     queryFn: async (): Promise<EnrichedCard[]> => {
       return Promise.all(
         inputs.map(async (input) => {

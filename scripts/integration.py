@@ -1,3 +1,5 @@
+import os
+
 import ape
 from ape import accounts, project
 from eth_utils import to_wei
@@ -5,15 +7,27 @@ from eth_utils import to_wei
 NFT_ADDR = "0x277B0105263e9471d91D1fE0eAb1fEEBDB2C0B83"
 MP_ADDR = "0x40DC222617c8a69DEE34B688E08c74385e81dB97"
 
+# The buyer must be a separate funded Ape keyring account (not the seller),
+# because a seller cannot meaningfully buy their own listing. Create one with:
+#     ape accounts generate decard_buyer   (then fund it with Sepolia ETH)
+BUYER_ACCOUNT = os.getenv("BUYER_ACCOUNT", "decard_buyer")
+
 
 def main():
     acct = accounts.load("decard")
+    try:
+        buyer = accounts.load(BUYER_ACCOUNT)
+    except Exception:
+        raise SystemExit(
+            f"Buyer account '{BUYER_ACCOUNT}' not found. Create it with "
+            f"`ape accounts generate {BUYER_ACCOUNT}` and fund it with Sepolia ETH."
+        )
+
     nft = project.GameCardNFT.at(NFT_ADDR)
     mp = project.Marketplace.at(MP_ADDR)
 
     # 1. Mint a card
     uri = "ipfs://QmIntegrationTestMetadataHash"
-    token_id = None
     before = nft.totalSupply()
     nft.mintCard(uri, sender=acct)
     token_id = nft.totalSupply()
@@ -29,10 +43,12 @@ def main():
     seller, p, active = mp.getListing(NFT_ADDR, token_id)
     print(f"3. Listed card: seller={seller} price={p} active={active}")
 
-    # 4. Buy with a fresh account
-    buyer = accounts[1]
+    # 4. Buy with a separate funded account
+    print(f"   buyer: {buyer.address} (balance {buyer.balance / 10**18} ETH)")
     mp.buyCard(NFT_ADDR, token_id, sender=buyer, value=price)
     _, _, active_after = mp.getListing(NFT_ADDR, token_id)
     print(f"4. Bought card: new owner={nft.ownerOf(token_id)}")
     print(f"   listing active after buy: {active_after}")
+    print(f"   seller tokensOfOwner: {nft.tokensOfOwner(acct)}")
+    print(f"   buyer  tokensOfOwner: {nft.tokensOfOwner(buyer)}")
     print("\nPASS: mint -> approve -> list -> buy flow succeeded on Sepolia")

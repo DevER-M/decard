@@ -6,13 +6,11 @@ import CardGrid from "../components/CardGrid";
 import { useCards } from "../hooks/useCards";
 import { useGameCard } from "../hooks/useGameCard";
 import { useAccount } from "wagmi";
-import { useMarketplace } from "../hooks/useMarketplace";
 import { getRarity, getType } from "../components/CardItem";
 
 export default function MarketplacePage() {
   const { address } = useAccount();
   const { totalSupply } = useGameCard();
-  const { buyCard } = useMarketplace();
   const cards = useCards(
     useMemo(
       () =>
@@ -67,7 +65,6 @@ export default function MarketplacePage() {
           loading={cards.isLoading}
           emptyMessage="No cards currently listed for sale."
           isOwner={(c) => c.ownership?.owner === address}
-          onBuy={buyCard}
         />
       </main>
     </>

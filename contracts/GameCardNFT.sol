@@ -43,11 +43,45 @@ contract GameCardNFT is ERC721URIStorage, Ownable {
         _setTokenURI(tokenId, metadataURI);
 
         tokenMinter[tokenId] = msg.sender;
-        _tokensOf[msg.sender].push(tokenId);
 
         emit CardMinted(tokenId, metadataURI, msg.sender);
 
         return tokenId;
+    }
+
+    /**
+     * @notice Keep `tokensOfOwner` in sync with actual ownership on every
+     *         mint, burn, or transfer (including marketplace purchases).
+     */
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 firstTokenId,
+        uint256 batchSize
+    ) internal override {
+        for (uint256 i = 0; i < batchSize; ++i) {
+            uint256 tokenId = firstTokenId + i;
+            if (from != address(0) && from != to) {
+                _removeTokenFromOwner(from, tokenId);
+            }
+            if (to != address(0) && from != to) {
+                _tokensOf[to].push(tokenId);
+            }
+        }
+        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
+    }
+
+    /** Removes `tokenId` from `owner`'s collection (order not preserved). */
+    function _removeTokenFromOwner(address owner, uint256 tokenId) internal {
+        uint256[] storage owned = _tokensOf[owner];
+        uint256 length = owned.length;
+        for (uint256 i = 0; i < length; ++i) {
+            if (owned[i] == tokenId) {
+                owned[i] = owned[length - 1];
+                owned.pop();
+                return;
+            }
+        }
     }
 
     /**

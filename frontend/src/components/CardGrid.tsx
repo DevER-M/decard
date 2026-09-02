@@ -8,7 +8,6 @@ interface CardGridProps {
   loading: boolean;
   emptyMessage?: string;
   isOwner: (card: EnrichedCard) => boolean;
-  onBuy?: (tokenId: bigint, price: bigint) => void;
   onList?: (card: EnrichedCard) => void;
   onCancel?: (tokenId: bigint) => void;
 }
@@ -18,7 +17,6 @@ export default function CardGrid({
   loading,
   emptyMessage = "No cards to display.",
   isOwner,
-  onBuy,
   onList,
   onCancel,
 }: CardGridProps) {
@@ -37,7 +35,6 @@ export default function CardGrid({
           key={card.tokenId.toString()}
           card={card}
           isOwner={isOwner(card)}
-          onBuy={onBuy}
           onList={onList}
           onCancel={onCancel}
         />

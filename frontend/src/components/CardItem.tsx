@@ -2,6 +2,8 @@
 
 import type { EnrichedCard } from "../hooks/useCards";
 import { toHttpUrl } from "../lib/config";
+import { toEth } from "../lib/format";
+import BuyButton from "./BuyButton";
 
 export function getRarity(e: EnrichedCard): string {
   const attr = e.metadata?.attributes.find((a) => a.trait_type === "Rarity");
@@ -16,15 +18,13 @@ export function getType(e: EnrichedCard): string {
 interface CardItemProps {
   card: EnrichedCard;
   isOwner: boolean;
-  onBuy?: (tokenId: bigint, price: bigint) => void;
   onList?: (card: EnrichedCard) => void;
   onCancel?: (tokenId: bigint) => void;
 }
 
-export default function CardItem({ card, isOwner, onBuy, onList, onCancel }: CardItemProps) {
+export default function CardItem({ card, isOwner, onList, onCancel }: CardItemProps) {
   const { tokenId, metadata, listing } = card;
   const rarity = getRarity(card);
-  const isListed = listing?.active ?? false;
 
   return (
     <div className={`card rarity-${rarity.toLowerCase()}`}>
@@ -63,9 +63,7 @@ export default function CardItem({ card, isOwner, onBuy, onList, onCancel }: Car
                   Unlist
                 </button>
               ) : (
-                <button className="btn btn-primary" onClick={() => onBuy?.(tokenId, listing.price)}>
-                  Buy
-                </button>
+                <BuyButton tokenId={tokenId} price={listing.price} />
               )}
             </>
           ) : (
@@ -79,9 +77,4 @@ export default function CardItem({ card, isOwner, onBuy, onList, onCancel }: Car
       </div>
     </div>
   );
-}
-
-export function toEth(wei: bigint): string {
-  const formatted = Number(wei) / 1e18;
-  return formatted.toLocaleString(undefined, { maximumFractionDigits: 4 });
 }

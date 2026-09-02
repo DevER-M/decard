@@ -41,8 +41,11 @@ export default function CollectionPage() {
             isOwner={() => true}
             onList={setListingCard}
             onCancel={async (tokenId) => {
-              await cancelListing(tokenId);
-              refresh();
+              try {
+                await cancelListing(tokenId);
+              } finally {
+                refresh();
+              }
             }}
           />
         )}
