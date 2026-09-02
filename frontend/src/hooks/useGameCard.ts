@@ -5,7 +5,7 @@ import { getPublicClient } from "wagmi/actions";
 import { GAME_CARD } from "../lib/contracts";
 import { wagmiConfig } from "../lib/wagmi";
 import type { CardMetadata } from "../types";
-import { toHttpUrl } from "../lib/config";
+import { toHttpUrls } from "../lib/config";
 
 /**
  * Wrapper around the GameCardNFT contract.
@@ -68,13 +68,16 @@ export async function readTokenURI(tokenId: bigint): Promise<string | null> {
   }
 }
 
-/** Fetch and parse metadata JSON from an ipfs:// URI. */
+/** Fetch and parse metadata JSON from an ipfs:// URI (tries each gateway). */
 export async function fetchCardMetadata(uri: string): Promise<CardMetadata | null> {
-  try {
-    const res = await fetch(toHttpUrl(uri));
-    if (!res.ok) return null;
-    return (await res.json()) as CardMetadata;
-  } catch {
-    return null;
+  if (!uri) return null;
+  for (const url of toHttpUrls(uri)) {
+    try {
+      const res = await fetch(url);
+      if (res.ok) return (await res.json()) as CardMetadata;
+    } catch {
+      // try next gateway
+    }
   }
+  return null;
 }
