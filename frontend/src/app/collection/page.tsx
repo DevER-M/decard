@@ -10,11 +10,15 @@ import ListCardModal from "../../components/ListCardModal";
 import { useGameCard } from "../../hooks/useGameCard";
 import { useCards, type EnrichedCard } from "../../hooks/useCards";
 import { useMarketplace } from "../../hooks/useMarketplace";
+import { useWriteAndWait } from "../../hooks/useWriteAndWait";
 
 export default function CollectionPage() {
   const { address, isConnected } = useAccount();
   const { ownedTokens, refetchOwned } = useGameCard();
   const { cancelListing } = useMarketplace();
+  const { run: cancelListingAndWait } = useWriteAndWait(cancelListing, {
+    invalidateOnSuccess: [["cards"]],
+  });
   const queryClient = useQueryClient();
   const [listingCard, setListingCard] = useState<EnrichedCard | null>(null);
 
@@ -74,9 +78,10 @@ export default function CollectionPage() {
             onList={setListingCard}
             onCancel={async (tokenId) => {
               try {
-                await cancelListing(tokenId);
-              } finally {
+                await cancelListingAndWait(tokenId);
                 refresh();
+              } catch {
+                /* surfaced by hook */
               }
             }}
           />

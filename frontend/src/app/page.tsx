@@ -1,13 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { Sparkles, Zap } from "lucide-react";
 import Nav from "../components/Nav";
 import CardGrid from "../components/CardGrid";
 import { useCards } from "../hooks/useCards";
 import { useGameCard } from "../hooks/useGameCard";
 import { useMarketplace } from "../hooks/useMarketplace";
+import { useWriteAndWait } from "../hooks/useWriteAndWait";
 import { useAccount } from "wagmi";
 import { getRarity, getType } from "../components/CardItem";
 import { RARITY_FILTERS, TYPE_FILTERS } from "../lib/cardOptions";
@@ -16,7 +16,9 @@ export default function MarketplacePage() {
   const { address, isConnected } = useAccount();
   const { totalSupply } = useGameCard();
   const { cancelListing } = useMarketplace();
-  const queryClient = useQueryClient();
+  const { run: cancelListingAndWait } = useWriteAndWait(cancelListing, {
+    invalidateOnSuccess: [["cards"]],
+  });
   const cards = useCards(
     useMemo(
       () =>
@@ -155,9 +157,9 @@ export default function MarketplacePage() {
           }
           onCancel={async (tokenId) => {
             try {
-              await cancelListing(tokenId);
-            } finally {
-              queryClient.invalidateQueries({ queryKey: ["cards"] });
+              await cancelListingAndWait(tokenId);
+            } catch {
+              /* surfaced by hook */
             }
           }}
         />
