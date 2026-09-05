@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { ShoppingCart } from "lucide-react";
 import { useMarketplace } from "../hooks/useMarketplace";
+import { useWriteAndWait } from "../hooks/useWriteAndWait";
 import { toEth } from "../lib/format";
 
 interface BuyButtonProps {
@@ -13,20 +12,15 @@ interface BuyButtonProps {
 
 export default function BuyButton({ tokenId, price }: BuyButtonProps) {
   const { buyCard } = useMarketplace();
-  const queryClient = useQueryClient();
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { run, pending, error } = useWriteAndWait(buyCard, {
+    invalidateOnSuccess: [["cards"]],
+  });
 
   async function handleBuy() {
-    setPending(true);
-    setError(null);
     try {
-      await buyCard(tokenId, price);
-      await queryClient.invalidateQueries({ queryKey: ["cards"] });
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setPending(false);
+      await run(tokenId, price);
+    } catch {
+      /* surfaced via error */
     }
   }
 
