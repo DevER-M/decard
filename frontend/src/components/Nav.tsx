@@ -17,7 +17,7 @@ export default function Nav() {
   return (
     <nav
       suppressHydrationWarning
-      className="sticky top-0 z-20 bg-neo-bg border-b-4 border-black"
+      className="sticky top-0 z-30 bg-neo-bg border-b-4 border-black"
     >
       <div className="max-w-7xl mx-auto flex items-center gap-6 px-4 sm:px-6 py-3 sm:py-4">
         <Link
