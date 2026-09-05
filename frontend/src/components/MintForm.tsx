@@ -77,6 +77,7 @@ export default function MintForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
+  const mintInFlightRef = useRef(false);
 
   const {
     isSuccess: mintConfirmed,
@@ -90,7 +91,11 @@ export default function MintForm() {
     searchQuery,
     searchEnabled,
   );
-  const { data: selectedCard } = usePokemonCardById(selectedCardId ?? "");
+  const {
+    data: selectedCard,
+    isLoading: selectedCardLoading,
+    isFetching: selectedCardFetching,
+  } = usePokemonCardById(selectedCardId ?? "");
 
   useEffect(() => {
     if (!selectedCard) return;
@@ -158,6 +163,7 @@ export default function MintForm() {
     setError(null);
     setSuccess(null);
 
+    if (mintInFlightRef.current) return;
     if (!isConnected) {
       setError("Connect your wallet to mint.");
       return;
@@ -178,9 +184,9 @@ export default function MintForm() {
       return;
     }
 
+    mintInFlightRef.current = true;
+    setMinting(true);
     try {
-      setMinting(true);
-
       const blob = await fetch(hiUrl).then((res) => {
         if (!res.ok) throw new Error(`Failed to fetch image (${res.status})`);
         return res.blob();
@@ -226,11 +232,15 @@ export default function MintForm() {
       setError((err as Error).message);
       setMinting(false);
       setMintHash(null);
+    } finally {
+      mintInFlightRef.current = false;
     }
   }
 
   const cards: TCGdexCardBrief[] = searchResult ?? [];
-  const hasSelection = mounted && !!selectedCardId;
+  const selectedCardReady = !!selectedCardId && !!selectedCard;
+  const hasSelection = mounted && selectedCardReady;
+  const cardBusy = mounted && (selectedCardLoading || selectedCardFetching) && !!selectedCardId && !selectedCard;
   const waitingForConfirmation = !!mintHash && !mintConfirmed && !mintReverted;
 
   return (
@@ -392,22 +402,24 @@ export default function MintForm() {
 
         <button
           onClick={handleMint}
-          disabled={mounted ? !!(uploading || minting || !hasSelection || !isConnected) : false}
+          disabled={mounted ? !!(uploading || minting || !hasSelection || !isConnected || cardBusy) : false}
           className="neo-border bg-neo-accent neo-shadow-lg h-16 px-6 font-black uppercase tracking-widest text-xl neo-press disabled:opacity-60 flex items-center justify-center gap-3 rotate-[0.5deg]"
         >
           {!mounted
             ? "Mint Card"
             : !isConnected
               ? "Connect Wallet to Mint"
-              : uploading
-                ? "Uploading to IPFS…"
-                : minting
-                  ? waitingForConfirmation
-                    ? "Waiting for Confirmation…"
-                    : mintPending
-                      ? "Confirming…"
-                      : "Confirm in Wallet…"
-                  : "Mint Card"}
+              : cardBusy
+                ? "Loading card…"
+                : uploading
+                  ? "Uploading to IPFS…"
+                  : minting
+                    ? waitingForConfirmation
+                      ? "Waiting for Confirmation…"
+                      : mintPending
+                        ? "Confirming…"
+                        : "Confirm in Wallet…"
+                    : "Mint Card"}
         </button>
       </div>
     </div>
