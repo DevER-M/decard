@@ -21,15 +21,23 @@ export default function CardGrid({
   onCancel,
 }: CardGridProps) {
   if (loading) {
-    return <div className="grid-loading">Loading cards…</div>;
+    return (
+      <div className="neo-border bg-neo-muted/40 px-8 py-12 text-center font-black uppercase tracking-widest text-2xl neo-shadow">
+        Loading cards…
+      </div>
+    );
   }
 
   if (cards.length === 0) {
-    return <div className="grid-empty">{emptyMessage}</div>;
+    return (
+      <div className="neo-border bg-neo-white px-8 py-12 text-center font-black uppercase tracking-widest text-xl neo-shadow">
+        {emptyMessage}
+      </div>
+    );
   }
 
   return (
-    <div className="card-grid">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 sm:gap-12 pt-6 pb-8 px-2">
       {cards.map((card) => (
         <CardItem
           key={card.tokenId.toString()}
