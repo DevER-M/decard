@@ -33,7 +33,7 @@ export function useCards(inputs: CardInput[]) {
   return useQuery({
     queryKey: QUERY_KEYS.CARDS(key),
     queryFn: async (): Promise<EnrichedCard[]> => {
-      return Promise.all(
+      const results = await Promise.allSettled(
         inputs.map(async (input) => {
           const uri = await readTokenURI(input.tokenId);
           const metadata = uri ? await fetchCardMetadata(uri) : null;
@@ -51,6 +51,19 @@ export function useCards(inputs: CardInput[]) {
           };
         })
       );
+      return results.map((result, idx) => {
+        if (result.status === "fulfilled") return result.value;
+        // Fall back to a minimal entry on per-token failure so a single
+        // IPFS/RPC hiccup doesn't blank the whole grid.
+        return {
+          tokenId: inputs[idx].tokenId,
+          metadata: null,
+          ownership: inputs[idx].owner
+            ? { tokenId: inputs[idx].tokenId, owner: inputs[idx].owner as `0x${string}` }
+            : null,
+          listing: null,
+        };
+      });
     },
     staleTime: 10_000,
   });
