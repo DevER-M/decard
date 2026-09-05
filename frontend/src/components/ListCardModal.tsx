@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useWaitForTransactionReceipt } from "wagmi";
 import { parseEther } from "viem";
 import { X, Tag } from "lucide-react";
@@ -18,6 +18,7 @@ export default function ListCardModal({ card, onClose, onListed }: ListCardModal
   const { approve, listCard } = useMarketplace();
   const [price, setPrice] = useState("");
   const [approvalHash, setApprovalHash] = useState<`0x${string}` | null>(null);
+  const [listHash, setListHash] = useState<`0x${string}` | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const {
@@ -28,14 +29,27 @@ export default function ListCardModal({ card, onClose, onListed }: ListCardModal
   } = useTransaction<[bigint], `0x${string}`>(approve);
   const {
     execute: executeList,
-    pending: listPending,
-    error: listError,
+    pending: listSubmitPending,
+    error: listSubmitError,
     setError: setListError,
   } = useTransaction<[bigint, bigint], `0x${string}`>(listCard);
 
   const { isSuccess: approved } = useWaitForTransactionReceipt({
     hash: approvalHash ?? undefined,
   });
+  const {
+    isLoading: waitingForListReceipt,
+    isSuccess: listConfirmed,
+    isError: listReceiptFailed,
+    error: listReceiptErrorObj,
+  } = useWaitForTransactionReceipt({ hash: listHash ?? undefined });
+
+  useEffect(() => {
+    if (!listConfirmed) return;
+    setListHash(null);
+    onListed();
+    onClose();
+  }, [listConfirmed, onListed, onClose]);
 
   function validatePrice(): bigint | null {
     setValidationError(null);
@@ -74,14 +88,14 @@ export default function ListCardModal({ card, onClose, onListed }: ListCardModal
 
   async function handleList() {
     setListError(null);
+    setListHash(null);
     const wei = validatePrice();
     if (wei === null) return;
     try {
-      await executeList(card.tokenId, wei);
-      onListed();
-      onClose();
+      const hash = await executeList(card.tokenId, wei);
+      setListHash(hash);
     } catch {
-      // surfaced via listError
+      // surfaced via listSubmitError
     }
   }
 
@@ -91,6 +105,12 @@ export default function ListCardModal({ card, onClose, onListed }: ListCardModal
     setListError(null);
   }
 
+  const listPending = listSubmitPending || waitingForListReceipt;
+  const listError =
+    listSubmitError ??
+    (listReceiptFailed
+      ? (listReceiptErrorObj as Error | null)?.message ?? "Transaction failed"
+      : null);
   const errorMessage = validationError || approveError || listError;
 
   return (
@@ -164,7 +184,11 @@ export default function ListCardModal({ card, onClose, onListed }: ListCardModal
               onClick={handleList}
               disabled={listPending}
             >
-              {listPending ? "Listing…" : `List for ${price || "0"} ETH`}
+              {listSubmitPending
+                ? "Confirm in wallet…"
+                : waitingForListReceipt
+                  ? "Waiting for confirmation…"
+                  : `List for ${price || "0"} ETH`}
             </button>
           )}
 
