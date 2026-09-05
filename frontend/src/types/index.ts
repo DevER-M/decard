@@ -1,6 +1,50 @@
-export type Rarity = "Common" | "Uncommon" | "Rare" | "Legendary" | "Mythical";
+export type Rarity = 
+  | "Common"
+  | "Uncommon"
+  | "Rare"
+  | "Rare Holo"
+  | "Rare Holo LV.X"
+  | "Rare Prime"
+  | "Prime"
+  | "Rare ACE"
+  | "Rare BREAK"
+  | "Rare Prism Star"
+  | "Rare Ultra"
+  | "Ultra Rare"
+  | "Rare Secret"
+  | "Secret Rare"
+  | "Special Illustration Rare"
+  | "Illustration Rare"
+  | "Shiny Rare"
+  | "Shiny"
+  | "Promo"
+  | "Classic"
+  | "Amazing Rare"
+  | "LEGEND"
+  | "Rare V"
+  | "Rare VMAX"
+  | "Rare VSTAR"
+  | "V"
+  | "VMAX"
+  | "VSTAR"
+  | "GX"
+  | "Rare GX"
+  | "ex"
+  | "Rare ex"
+  | "M";
 
-export type CardType = "Fire" | "Water" | "Grass" | "Electric" | "Psychic";
+export type CardType = 
+  | "Fire"
+  | "Water"
+  | "Grass"
+  | "Electric"
+  | "Psychic"
+  | "Fighting"
+  | "Colorless"
+  | "Darkness"
+  | "Metal"
+  | "Dragon"
+  | "Fairy";
 
 export interface CardAttribute {
   trait_type: string;
@@ -28,4 +72,15 @@ export interface Listing {
 
 export interface ListedCard extends CardData {
   listing: Listing;
+}
+
+export interface MappedCardData {
+  name: string;
+  description: string;
+  type: CardType;
+  rarity: Rarity;
+  attack: number;
+  defense: number;
+  hp: number;
+  imageUri: string;
 }

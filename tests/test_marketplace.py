@@ -111,7 +111,7 @@ def test_buy_card(listed_card, game_card, marketplace, seller, buyer):
 
     # Seller received ETH, buyer paid ETH + gas
     assert seller.balance == seller_balance_before + price
-    assert buyer.balance < buyer_balance_before - price + price
+    assert buyer.balance <= buyer_balance_before - price
 
     logs = [log for log in receipt.decode_logs(marketplace.CardSold) if log.event_name == "CardSold"]
     assert len(logs) == 1

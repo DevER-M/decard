@@ -28,3 +28,6 @@ frontend/.next/
 # TypeScript
 frontend/*.tsbuildinfo
 next-env.d.ts
+
+# opencode session logs
+session-ses_*.md
