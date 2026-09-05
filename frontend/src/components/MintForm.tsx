@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAccount } from "wagmi";
 import { useWaitForTransactionReceipt } from "wagmi";
+import { Search, Sparkles, Upload, Loader2 } from "lucide-react";
 import {
   usePokemonCardSearch,
   usePokemonCardById,
@@ -19,8 +20,14 @@ import type { CardType, Rarity } from "../types";
 import { buildImageUrl, TCGdexCardBrief, TCGdexCard } from "../lib/pokemon-tcg";
 import { RARITIES, CARD_TYPES as TYPES } from "../lib/cardOptions";
 
-const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10 MB
-const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/jpg", "image/webp", "image/gif"];
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = [
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+  "image/gif",
+];
 
 const DEFAULTS = {
   name: "",
@@ -33,11 +40,13 @@ const DEFAULTS = {
 };
 
 function safeFilename(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9-_]/g, "")
-    .slice(0, 60) || "card";
+  return (
+    name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-_]/g, "")
+      .slice(0, 60) || "card"
+  );
 }
 
 export default function MintForm() {
@@ -69,18 +78,20 @@ export default function MintForm() {
   const [success, setSuccess] = useState<string | null>(null);
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
 
-  const { isSuccess: mintConfirmed, isError: mintReverted, isLoading: mintPending } =
-    useWaitForTransactionReceipt({
-      hash: mintHash ?? undefined,
-    });
+  const {
+    isSuccess: mintConfirmed,
+    isError: mintReverted,
+    isLoading: mintPending,
+  } = useWaitForTransactionReceipt({
+    hash: mintHash ?? undefined,
+  });
 
-  const { data: searchResult, isFetching, refetch } = usePokemonCardSearch(searchQuery, searchEnabled);
-
+  const { data: searchResult, isFetching, refetch } = usePokemonCardSearch(
+    searchQuery,
+    searchEnabled,
+  );
   const { data: selectedCard } = usePokemonCardById(selectedCardId ?? "");
 
-  // Only auto-fill form fields the FIRST time we successfully load a card
-  // for a given selection. Refetches (e.g. from background invalidations)
-  // must NOT overwrite any values the user has already edited.
   useEffect(() => {
     if (!selectedCard) return;
     if (selectedCard.id !== selectedCardId) return;
@@ -115,10 +126,6 @@ export default function MintForm() {
     setMinting(false);
   }
 
-  // React to the receipt status of the mint tx:
-  //  - confirmed → success + reset
-  //  - reverted (isError) → surface a clear message, clear hash so the spinner stops
-  //  - pending for a long time → keep the "Submitted…" message (handled by render branch)
   useEffect(() => {
     if (!mintHash) return;
     if (mintConfirmed) {
@@ -193,7 +200,9 @@ export default function MintForm() {
       const ext = (blob.type.split("/")[1] || "webp").replace("jpeg", "jpg");
       const base = safeFilename(name);
       const stamp = Date.now().toString(36);
-      const imageFile = new File([blob], `${base}-${stamp}.${ext}`, { type: blob.type });
+      const imageFile = new File([blob], `${base}-${stamp}.${ext}`, {
+        type: blob.type,
+      });
 
       const attributes = [
         { trait_type: "Rarity", value: rarity },
@@ -225,128 +234,179 @@ export default function MintForm() {
   const waitingForConfirmation = !!mintHash && !mintConfirmed && !mintReverted;
 
   return (
-    <div className="mint-form">
-      <div className="form-group">
-        <label>Search Pokémon Card</label>
-        <div className="search-row">
-          <input
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setSearchEnabled(false);
-              setSelectedCardId(null);
-              initializedFor.current = null;
-            }}
-            placeholder="Pikachu, Charizard, Bulbasaur..."
-            disabled={mounted ? !!isFetching : false}
-          />
-          <button
-            className="btn btn-primary"
-            onClick={handleSearch}
-            disabled={mounted ? !!(isFetching || !searchQuery.trim()) : !searchQuery.trim()}
-          >
-            {mounted && isFetching ? "Searching…" : "Search"}
-          </button>
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+      {/* LEFT: search + summary */}
+      <div className="lg:col-span-3 flex flex-col gap-6">
+        <div className="neo-border bg-neo-white neo-shadow-lg p-6 sm:p-8 rotate-[0.5deg]">
+          <div className="flex items-center gap-3 mb-5">
+            <span className="inline-flex h-10 w-10 items-center justify-center bg-neo-accent neo-border">
+              <Search strokeWidth={3} className="h-5 w-5" />
+            </span>
+            <h3 className="text-2xl font-black uppercase tracking-tight">
+              Find a Pokémon
+            </h3>
+          </div>
+
+          <div className="flex gap-3">
+            <input
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setSearchEnabled(false);
+                setSelectedCardId(null);
+                initializedFor.current = null;
+              }}
+              placeholder="Pikachu, Charizard, Bulbasaur…"
+              className="neo-border bg-neo-bg h-14 px-4 flex-1 font-black text-lg placeholder:text-black/40 focus:bg-neo-secondary focus:shadow-[4px_4px_0_0_#000] focus:outline-none transition-colors"
+            />
+            <button
+              onClick={handleSearch}
+              disabled={mounted ? !!(isFetching || !searchQuery.trim()) : !searchQuery.trim()}
+              className="neo-border bg-neo-secondary px-5 h-14 font-black uppercase tracking-widest text-sm neo-press-sm disabled:opacity-60 flex items-center gap-2"
+            >
+              {mounted && isFetching ? (
+                <Loader2 strokeWidth={3} className="h-5 w-5 animate-spin" />
+              ) : (
+                <Search strokeWidth={3} className="h-5 w-5" />
+              )}
+              Search
+            </button>
+          </div>
+
+          {mounted && cards.length > 0 && !hasSelection && (
+            <div className="mt-6">
+              <div className="text-xs font-black uppercase tracking-widest mb-3 text-black/70">
+                Pick a result
+              </div>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                {cards.slice(0, 20).map((card) => {
+                  const url = buildImageUrl(card.image, "low", "webp");
+                  const hasError = imgErrors.has(card.id);
+                  return (
+                    <button
+                      key={card.id}
+                      type="button"
+                      onClick={() => handleCardSelect(card)}
+                      className="neo-border bg-neo-bg p-1.5 neo-press-sm hover:bg-neo-secondary transition-colors"
+                    >
+                      {url && !hasError ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={url}
+                          alt={card.name}
+                          loading="lazy"
+                          className="w-full aspect-[5/7] object-cover"
+                          onError={() =>
+                            setImgErrors((prev) => new Set(prev).add(card.id))
+                          }
+                        />
+                      ) : (
+                        <div className="w-full aspect-[5/7] flex items-center justify-center text-[10px] font-bold uppercase tracking-widest text-black/50">
+                          No image
+                        </div>
+                      )}
+                      <div className="mt-1 text-[10px] font-black uppercase tracking-tight truncate text-center">
+                        {card.name}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
+
+        {hasSelection && selectedCard ? (
+          <div className="neo-border bg-neo-muted/40 neo-shadow p-6 -rotate-[0.5deg]">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="inline-flex h-9 w-9 items-center justify-center bg-neo-ink text-neo-bg neo-border">
+                <Sparkles strokeWidth={3} className="h-5 w-5" />
+              </span>
+              <h3 className="text-xl font-black uppercase tracking-tight">Selected</h3>
+            </div>
+            <dl className="grid grid-cols-[110px_1fr] gap-x-4 gap-y-2 font-bold">
+              <dt className="uppercase tracking-widest text-xs text-black/70">Name</dt>
+              <dd>{name || "—"}</dd>
+              <dt className="uppercase tracking-widest text-xs text-black/70">Type</dt>
+              <dd className="inline-flex">
+                <span className="px-2 py-0.5 bg-neo-ink text-neo-bg text-xs font-black uppercase tracking-widest">
+                  {type}
+                </span>
+              </dd>
+              <dt className="uppercase tracking-widest text-xs text-black/70">Rarity</dt>
+              <dd className="inline-flex">
+                <span className="px-2 py-0.5 bg-neo-secondary neo-border border-2 text-xs font-black uppercase tracking-widest">
+                  {rarity}
+                </span>
+              </dd>
+              <dt className="uppercase tracking-widest text-xs text-black/70">Attack</dt>
+              <dd>{attack}</dd>
+              <dt className="uppercase tracking-widest text-xs text-black/70">Defense</dt>
+              <dd>{defense}</dd>
+              <dt className="uppercase tracking-widest text-xs text-black/70">HP</dt>
+              <dd>{hp}</dd>
+              <dt className="uppercase tracking-widest text-xs text-black/70">Description</dt>
+              <dd>{description || "—"}</dd>
+            </dl>
+          </div>
+        ) : (
+          <div className="neo-border bg-neo-secondary/40 p-5 font-black uppercase tracking-widest text-sm">
+            Search for a Pokémon and pick a result to load its stats.
+          </div>
+        )}
       </div>
 
-      {mounted && cards.length > 0 && !hasSelection && (
-        <div className="card-suggestions">
-          <h4>Search Results — hover for stats</h4>
-          <div className="suggestions-list">
-            {cards.slice(0, 20).map((card) => {
-              const url = buildImageUrl(card.image, "low", "webp");
-              const hasError = imgErrors.has(card.id);
-              return (
-                <button
-                  key={card.id}
-                  className="suggestion-item"
-                  onClick={() => handleCardSelect(card)}
-                  type="button"
-                >
-                  <div className="suggestion-image-wrap">
-                    {url && !hasError ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={url}
-                        alt={card.name}
-                        className="suggestion-img"
-                        loading="lazy"
-                        onError={() =>
-                          setImgErrors((prev) => new Set(prev).add(card.id))
-                        }
-                      />
-                    ) : (
-                      <div className="suggestion-placeholder">
-                        {hasError ? "Image unavailable" : "No image"}
-                      </div>
-                    )}
-                    <div className="suggestion-overlay">
-                      <div className="suggestion-overlay-name">{card.name}</div>
-                      <div className="suggestion-overlay-meta">
-                        <span>Set: {card.id.split("-")[0]}</span>
-                        <span>#{card.localId}</span>
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
+      {/* RIGHT: preview + big CTA */}
+      <div className="lg:col-span-2 flex flex-col gap-6">
+        <div className="neo-border bg-neo-white neo-shadow-lg p-5 rotate-[-1deg]">
+          <div className="text-xs font-black uppercase tracking-widest mb-3 text-black/70">
+            Card Preview
+          </div>
+          <div className="aspect-[5/7] bg-neo-muted/40 neo-border flex items-center justify-center overflow-hidden">
+            {preview ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={preview}
+                alt={name || "Preview"}
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-3 text-black/50 font-black uppercase tracking-widest text-xs">
+                <Upload strokeWidth={3} className="h-10 w-10" />
+                Pick a card to preview
+              </div>
+            )}
           </div>
         </div>
-      )}
 
-      {hasSelection ? (
-        <div className="card-summary">
-          <h4>Selected Card</h4>
-          <dl className="card-summary-list">
-            <dt>Name</dt>
-            <dd>{name || "—"}</dd>
+        {error && (
+          <div className="neo-border bg-neo-accent px-4 py-3 font-black uppercase tracking-wide text-sm">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="neo-border bg-neo-muted px-4 py-3 font-black uppercase tracking-wide text-sm">
+            {success}
+          </div>
+        )}
 
-            <dt>Type</dt>
-            <dd>{type}</dd>
-
-            <dt>Rarity</dt>
-            <dd>{rarity}</dd>
-
-            <dt>Attack</dt>
-            <dd>{attack}</dd>
-
-            <dt>Defense</dt>
-            <dd>{defense}</dd>
-
-            <dt>HP</dt>
-            <dd>{hp}</dd>
-
-            <dt>Description</dt>
-            <dd>{description || "—"}</dd>
-          </dl>
-        </div>
-      ) : (
-        <p className="hint">Search for a Pokémon and pick a result to load its stats.</p>
-      )}
-
-      {error && <div className="error">{error}</div>}
-      {success && <div className="success">{success}</div>}
-
-      <div className="form-actions">
         <button
-          className="btn btn-primary"
           onClick={handleMint}
           disabled={mounted ? !!(uploading || minting || !hasSelection || !isConnected) : false}
+          className="neo-border bg-neo-accent neo-shadow-lg h-16 px-6 font-black uppercase tracking-widest text-xl neo-press disabled:opacity-60 flex items-center justify-center gap-3 rotate-[0.5deg]"
         >
           {!mounted
             ? "Mint Card"
             : !isConnected
-              ? "Connect wallet to mint"
+              ? "Connect Wallet to Mint"
               : uploading
                 ? "Uploading to IPFS…"
                 : minting
                   ? waitingForConfirmation
-                    ? "Waiting for confirmation…"
+                    ? "Waiting for Confirmation…"
                     : mintPending
                       ? "Confirming…"
-                      : "Confirm in wallet…"
+                      : "Confirm in Wallet…"
                   : "Mint Card"}
         </button>
       </div>

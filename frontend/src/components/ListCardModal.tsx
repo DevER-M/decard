@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useWaitForTransactionReceipt } from "wagmi";
 import { parseEther } from "viem";
+import { X, Tag } from "lucide-react";
 import { useTransaction } from "../hooks/useTransaction";
 import type { EnrichedCard } from "../hooks/useCards";
 import { useMarketplace } from "../hooks/useMarketplace";
@@ -19,10 +20,18 @@ export default function ListCardModal({ card, onClose, onListed }: ListCardModal
   const [approvalHash, setApprovalHash] = useState<`0x${string}` | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const { execute: executeApprove, pending: approvePending, error: approveError, setError: setApproveError } =
-    useTransaction<[bigint], `0x${string}`>(approve);
-  const { execute: executeList, pending: listPending, error: listError, setError: setListError } =
-    useTransaction<[bigint, bigint], `0x${string}`>(listCard);
+  const {
+    execute: executeApprove,
+    pending: approvePending,
+    error: approveError,
+    setError: setApproveError,
+  } = useTransaction<[bigint], `0x${string}`>(approve);
+  const {
+    execute: executeList,
+    pending: listPending,
+    error: listError,
+    setError: setListError,
+  } = useTransaction<[bigint, bigint], `0x${string}`>(listCard);
 
   const { isSuccess: approved } = useWaitForTransactionReceipt({
     hash: approvalHash ?? undefined,
@@ -59,7 +68,7 @@ export default function ListCardModal({ card, onClose, onListed }: ListCardModal
       const hash = await executeApprove(card.tokenId);
       setApprovalHash(hash);
     } catch {
-      // Error surfaced via approveError
+      // surfaced via approveError
     }
   }
 
@@ -67,13 +76,12 @@ export default function ListCardModal({ card, onClose, onListed }: ListCardModal
     setListError(null);
     const wei = validatePrice();
     if (wei === null) return;
-
     try {
       await executeList(card.tokenId, wei);
       onListed();
       onClose();
     } catch {
-      // Error surfaced via listError
+      // surfaced via listError
     }
   }
 
@@ -86,44 +94,93 @@ export default function ListCardModal({ card, onClose, onListed }: ListCardModal
   const errorMessage = validationError || approveError || listError;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2>List {card.metadata?.name ?? `Card #${card.tokenId.toString()}`} for sale</h2>
-
-        <label>
-          Price (ETH)
-          <input
-            type="number"
-            min="0"
-            step="any"
-            value={price}
-            onChange={(e) => {
-              setPrice(e.target.value);
-              clearAllErrors();
-            }}
-            placeholder="0.5"
-          />
-       </label>
-
-        <button className="btn btn-primary" onClick={handleApprove} disabled={!!approvePending}>
-          {approvePending ? "Approving…" : approved ? "Re-approve marketplace" : "Approve marketplace"}
+    <div
+      className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 backdrop-blur-[2px]"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-md bg-neo-bg neo-border neo-shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          className="absolute -top-4 -right-4 h-10 w-10 neo-border bg-neo-accent neo-press-sm flex items-center justify-center"
+          onClick={onClose}
+          aria-label="Close"
+        >
+          <X strokeWidth={3} className="h-5 w-5" />
         </button>
 
-        {approvalHash && !approved && (
-          <p className="hint">Waiting for approval confirmation…</p>
-        )}
+        <div className="bg-neo-secondary neo-border border-b-4 border-black px-6 py-4 flex items-center gap-3">
+          <Tag strokeWidth={3} className="h-6 w-6" fill="black" />
+          <h2 className="text-2xl font-black uppercase tracking-tight">
+            List for Sale
+          </h2>
+        </div>
 
-        {approved && (
-          <button className="btn btn-primary" onClick={handleList} disabled={!!listPending}>
-            {listPending ? "Listing…" : `List for ${price} ETH`}
+        <div className="p-6 flex flex-col gap-5">
+          <div className="bg-neo-white neo-border px-3 py-2 font-bold uppercase tracking-wide text-sm">
+            {card.metadata?.name ?? `Card #${card.tokenId.toString()}`}
+          </div>
+
+          <label className="block">
+            <span className="block mb-2 font-black uppercase tracking-widest text-sm">
+              Price (ETH)
+            </span>
+            <input
+              type="number"
+              min="0"
+              step="any"
+              value={price}
+              onChange={(e) => {
+                setPrice(e.target.value);
+                clearAllErrors();
+              }}
+              placeholder="0.5"
+              className="neo-border bg-neo-white h-14 px-3 w-full font-black text-xl placeholder:text-black/40 focus:bg-neo-secondary focus:shadow-[4px_4px_0_0_#000] focus:outline-none transition-colors"
+            />
+          </label>
+
+          <button
+            className="neo-border bg-neo-accent h-14 px-4 font-black uppercase tracking-widest text-base neo-press-sm disabled:opacity-60"
+            onClick={handleApprove}
+            disabled={approvePending}
+          >
+            {approvePending
+              ? "Approving…"
+              : approved
+                ? "Re-approve marketplace"
+                : "Approve marketplace"}
           </button>
-        )}
 
-        {errorMessage && <div className="error">{errorMessage}</div>}
+          {approvalHash && !approved && (
+            <div className="bg-neo-muted neo-border px-3 py-2 font-bold uppercase tracking-wide text-sm">
+              Waiting for approval confirmation…
+            </div>
+          )}
 
-        <button className="btn btn-secondary" onClick={onClose}>
-          Cancel
-        </button>
+          {approved && (
+            <button
+              className="neo-border bg-neo-ink text-neo-bg h-14 px-4 font-black uppercase tracking-widest text-base neo-press-sm disabled:opacity-60"
+              onClick={handleList}
+              disabled={listPending}
+            >
+              {listPending ? "Listing…" : `List for ${price || "0"} ETH`}
+            </button>
+          )}
+
+          {errorMessage && (
+            <div className="neo-border bg-neo-accent text-black px-3 py-2 font-bold uppercase tracking-wide text-sm">
+              {errorMessage}
+            </div>
+          )}
+
+          <button
+            className="neo-border-2 bg-neo-bg h-10 px-4 font-black uppercase tracking-widest text-xs neo-press-sm self-end"
+            onClick={onClose}
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );
