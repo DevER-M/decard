@@ -14,7 +14,7 @@ export default function Nav() {
   const pathname = usePathname();
 
   return (
-    <nav className="nav">
+    <nav className="nav" suppressHydrationWarning>
       <Link href="/" className="nav-brand">
         ⚡ Decard
       </Link>

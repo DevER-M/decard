@@ -1,16 +1,21 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Nav from "../components/Nav";
 import CardGrid from "../components/CardGrid";
 import { useCards } from "../hooks/useCards";
 import { useGameCard } from "../hooks/useGameCard";
+import { useMarketplace } from "../hooks/useMarketplace";
 import { useAccount } from "wagmi";
 import { getRarity, getType } from "../components/CardItem";
+import { RARITY_FILTERS, TYPE_FILTERS } from "../lib/cardOptions";
 
 export default function MarketplacePage() {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const { totalSupply } = useGameCard();
+  const { cancelListing } = useMarketplace();
+  const queryClient = useQueryClient();
   const cards = useCards(
     useMemo(
       () =>
@@ -25,8 +30,9 @@ export default function MarketplacePage() {
   const [rarityFilter, setRarityFilter] = useState("All");
   const [typeFilter, setTypeFilter] = useState("All");
 
-  const listings = (cards.data ?? []).filter(
-    (c) => c.listing?.active
+  const listings = useMemo(
+    () => (cards.data ?? []).filter((c) => c.listing?.active),
+    [cards.data]
   );
 
   const filtered = useMemo(
@@ -47,15 +53,15 @@ export default function MarketplacePage() {
 
         <div className="filters">
           <select value={rarityFilter} onChange={(e) => setRarityFilter(e.target.value)}>
-            <option>All</option>
-            {["Common", "Uncommon", "Rare", "Legendary", "Mythical"].map((r) => (
-              <option key={r}>{r}</option>
+            <option value="All">All Rarities</option>
+            {RARITY_FILTERS.filter((r) => r !== "All").map((r) => (
+              <option key={r} value={r}>{r}</option>
             ))}
           </select>
           <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
-            <option>All</option>
-            {["Fire", "Water", "Grass", "Electric", "Psychic"].map((t) => (
-              <option key={t}>{t}</option>
+            <option value="All">All Types</option>
+            {TYPE_FILTERS.filter((t) => t !== "All").map((t) => (
+              <option key={t} value={t}>{t}</option>
             ))}
           </select>
         </div>
@@ -64,7 +70,17 @@ export default function MarketplacePage() {
           cards={filtered}
           loading={cards.isLoading}
           emptyMessage="No cards currently listed for sale."
-          isOwner={(c) => c.ownership?.owner === address}
+          isOwner={(c) =>
+            isConnected &&
+            (c.ownership?.owner === address || c.listing?.seller === address)
+          }
+          onCancel={async (tokenId) => {
+            try {
+              await cancelListing(tokenId);
+            } finally {
+              queryClient.invalidateQueries({ queryKey: ["cards"] });
+            }
+          }}
         />
       </main>
     </>

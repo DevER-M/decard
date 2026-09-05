@@ -59,7 +59,7 @@ export async function uploadCardMetadata(params: {
 }): Promise<string> {
   const { image, name, description, attributes } = params;
 
-  const imageUpload = await uploadFile(image, `card-image-${Date.now()}.png`);
+  const imageUpload = await uploadFile(image, `card-image-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.png`);
 
   const metadata = {
     name,
@@ -68,7 +68,7 @@ export async function uploadCardMetadata(params: {
     attributes,
   };
 
-  const metadataUpload = await uploadJson(metadata, `card-metadata-${Date.now()}.json`);
+  const metadataUpload = await uploadJson(metadata, `card-metadata-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.json`);
 
   return metadataUpload.ipfsUri;
 }

@@ -7,7 +7,7 @@ import { toEth } from "../lib/format";
 
 interface BuyButtonProps {
   tokenId: bigint;
-  price: bigint; // wei
+  price: bigint;
 }
 
 export default function BuyButton({ tokenId, price }: BuyButtonProps) {
@@ -31,7 +31,7 @@ export default function BuyButton({ tokenId, price }: BuyButtonProps) {
 
   return (
     <div>
-      <button className="btn btn-primary" onClick={handleBuy} disabled={pending}>
+      <button className="btn btn-primary" onClick={handleBuy} disabled={!!pending}>
         {pending ? "Buying…" : `Buy for ${toEth(price)} ETH`}
       </button>
       {error && <div className="error">{error}</div>}

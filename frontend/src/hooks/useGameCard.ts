@@ -15,13 +15,6 @@ export function useGameCard() {
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
 
-  const { data: balance } = useReadContract({
-    ...GAME_CARD,
-    functionName: "balanceOf",
-    args: address ? [address] : undefined,
-    query: { enabled: !!address },
-  });
-
   const { data: totalSupply } = useReadContract({
     ...GAME_CARD,
     functionName: "totalSupply",
@@ -44,7 +37,6 @@ export function useGameCard() {
 
   return {
     address,
-    balance,
     totalSupply,
     ownedTokens: (ownedTokens as bigint[] | undefined) ?? [],
     mint,

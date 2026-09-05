@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useWaitForTransactionReceipt } from "wagmi";
 import { parseEther } from "viem";
+import { useTransaction } from "../hooks/useTransaction";
 import type { EnrichedCard } from "../hooks/useCards";
 import { useMarketplace } from "../hooks/useMarketplace";
 
@@ -16,44 +17,73 @@ export default function ListCardModal({ card, onClose, onListed }: ListCardModal
   const { approve, listCard } = useMarketplace();
   const [price, setPrice] = useState("");
   const [approvalHash, setApprovalHash] = useState<`0x${string}` | null>(null);
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Wait for the approve transaction to confirm
-  const { data: approvalReceipt, isSuccess: approved } = useWaitForTransactionReceipt({
+  const { execute: executeApprove, pending: approvePending, error: approveError, setError: setApproveError } =
+    useTransaction<[bigint], `0x${string}`>(approve);
+  const { execute: executeList, pending: listPending, error: listError, setError: setListError } =
+    useTransaction<[bigint, bigint], `0x${string}`>(listCard);
+
+  const { isSuccess: approved } = useWaitForTransactionReceipt({
     hash: approvalHash ?? undefined,
   });
 
-  async function handleApprove() {
-    setError(null);
-    if (!price || Number(price) <= 0) {
-      setError("Enter a valid price in ETH.");
-      return;
+  function validatePrice(): bigint | null {
+    setValidationError(null);
+    const trimmed = price.trim();
+    if (!trimmed) {
+      setValidationError("Enter a valid price in ETH.");
+      return null;
     }
-    setPending(true);
+    const num = Number(trimmed);
+    if (!Number.isFinite(num) || num <= 0) {
+      setValidationError("Price must be greater than 0 ETH.");
+      return null;
+    }
     try {
-      const hash = await approve(card.tokenId);
+      return parseEther(trimmed);
+    } catch {
+      setValidationError(
+        "Invalid price format. Use a decimal value with at most 18 fractional digits (e.g. 0.5).",
+      );
+      return null;
+    }
+  }
+
+  async function handleApprove() {
+    if (validatePrice() === null) return;
+    setApprovalHash(null);
+    setApproveError(null);
+    setListError(null);
+    try {
+      const hash = await executeApprove(card.tokenId);
       setApprovalHash(hash);
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setPending(false);
+    } catch {
+      // Error surfaced via approveError
     }
   }
 
   async function handleList() {
-    setError(null);
-    setPending(true);
+    setListError(null);
+    const wei = validatePrice();
+    if (wei === null) return;
+
     try {
-      await listCard(card.tokenId, parseEther(price));
+      await executeList(card.tokenId, wei);
       onListed();
       onClose();
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setPending(false);
+    } catch {
+      // Error surfaced via listError
     }
   }
+
+  function clearAllErrors() {
+    setValidationError(null);
+    setApproveError(null);
+    setListError(null);
+  }
+
+  const errorMessage = validationError || approveError || listError;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -67,28 +97,29 @@ export default function ListCardModal({ card, onClose, onListed }: ListCardModal
             min="0"
             step="any"
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            onChange={(e) => {
+              setPrice(e.target.value);
+              clearAllErrors();
+            }}
             placeholder="0.5"
           />
-        </label>
+       </label>
 
-        {!approvalHash && (
-          <button className="btn btn-primary" onClick={handleApprove} disabled={pending}>
-            {pending ? "Approving…" : "Approve marketplace"}
-          </button>
-        )}
+        <button className="btn btn-primary" onClick={handleApprove} disabled={!!approvePending}>
+          {approvePending ? "Approving…" : approved ? "Re-approve marketplace" : "Approve marketplace"}
+        </button>
 
         {approvalHash && !approved && (
           <p className="hint">Waiting for approval confirmation…</p>
         )}
 
         {approved && (
-          <button className="btn btn-primary" onClick={handleList} disabled={pending}>
-            {pending ? "Listing…" : `List for ${price} ETH`}
+          <button className="btn btn-primary" onClick={handleList} disabled={!!listPending}>
+            {listPending ? "Listing…" : `List for ${price} ETH`}
           </button>
         )}
 
-        {error && <div className="error">{error}</div>}
+        {errorMessage && <div className="error">{errorMessage}</div>}
 
         <button className="btn btn-secondary" onClick={onClose}>
           Cancel
