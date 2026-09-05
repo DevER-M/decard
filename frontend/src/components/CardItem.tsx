@@ -8,12 +8,12 @@ import { toEth } from "../lib/format";
 import BuyButton from "./BuyButton";
 
 export function getRarity(e: EnrichedCard): string {
-  const attr = e.metadata?.attributes.find((a) => a.trait_type === "Rarity");
+  const attr = e.metadata?.attributes?.find((a) => a.trait_type === "Rarity");
   return attr ? String(attr.value) : "Unknown";
 }
 
 export function getType(e: EnrichedCard): string {
-  const attr = e.metadata?.attributes.find((a) => a.trait_type === "Type");
+  const attr = e.metadata?.attributes?.find((a) => a.trait_type === "Type");
   return attr ? String(attr.value) : "Unknown";
 }
 
