@@ -3,5 +3,13 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function ConnectWallet() {
-  return <ConnectButton />;
+  return (
+    <div className="neo-press-sm">
+      <ConnectButton
+        chainStatus="icon"
+        accountStatus={{ smallScreen: "avatar", largeScreen: "full" }}
+        showBalance={false}
+      />
+    </div>
+  );
 }
