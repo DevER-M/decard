@@ -44,7 +44,7 @@ function safeFilename(name: string): string {
     name
       .toLowerCase()
       .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-_]/g, "")
+      .replace(/[^a-z0-9_-]/g, "")
       .slice(0, 60) || "card"
   );
 }
