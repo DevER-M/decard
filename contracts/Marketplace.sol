@@ -32,6 +32,7 @@ contract Marketplace is ReentrancyGuard {
      * @param price The sale price in wei
      */
     function listCard(address nftContract, uint256 tokenId, uint256 price) external {
+        require(nftContract != address(0), "Invalid NFT contract");
         require(price > 0, "Price must be greater than 0");
 
         IERC721 nft = IERC721(nftContract);
@@ -57,6 +58,7 @@ contract Marketplace is ReentrancyGuard {
      * @param tokenId The card token id
      */
     function buyCard(address nftContract, uint256 tokenId) external payable nonReentrant {
+        require(nftContract != address(0), "Invalid NFT contract");
         Listing storage listing = listings[nftContract][tokenId];
         require(listing.active, "Card is not listed for sale");
         require(msg.value == listing.price, "Incorrect amount sent");
@@ -94,6 +96,7 @@ contract Marketplace is ReentrancyGuard {
      * @param tokenId The card token id
      */
     function cancelListing(address nftContract, uint256 tokenId) external {
+        require(nftContract != address(0), "Invalid NFT contract");
         Listing storage listing = listings[nftContract][tokenId];
         require(listing.active, "Card is not listed for sale");
         require(listing.seller == msg.sender, "Only the seller can cancel");
