@@ -30,7 +30,7 @@ export function usePokemonCardSearch(
       return result.data;
     },
     enabled: enabled && !!query && query.trim().length > 0,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10,
   });
   return {
     data: q.data,
@@ -58,7 +58,7 @@ export function usePokemonCardSearchPaginated(
       });
     },
     enabled: enabled && !!query && query.trim().length > 0,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10,
   });
 }
 
@@ -70,7 +70,7 @@ export function usePokemonCardById(cardId: string) {
       return await getCardById(cardId);
     },
     enabled: !!cardId,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10,
   });
 }
 

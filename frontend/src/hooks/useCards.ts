@@ -65,6 +65,6 @@ export function useCards(inputs: CardInput[]) {
         };
       });
     },
-    staleTime: 10_000,
+    staleTime: 1000 * 60 * 5,
   });
 }

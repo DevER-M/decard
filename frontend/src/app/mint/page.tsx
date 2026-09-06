@@ -14,7 +14,7 @@ export default function MintPage() {
               Mint a Card
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight">
-              Make Something Rare.
+              MINT FROM TCGDEX
             </h1>
             <p className="mt-3 max-w-xl mx-auto font-bold text-base sm:text-lg">
               Pick a Pokémon, lock in stats, pin to IPFS, mint as an NFT on

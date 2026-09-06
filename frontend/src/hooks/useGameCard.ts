@@ -7,10 +7,8 @@ import { wagmiConfig } from "../lib/wagmi";
 import type { CardMetadata } from "../types";
 import { toHttpUrls } from "../lib/config";
 
-/**
- * Wrapper around the GameCardNFT contract.
- * Provides minting plus read helpers for balance/tokens/metadata.
- */
+const METADATA_CACHE = new Map<string, CardMetadata>();
+
 export function useGameCard() {
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
@@ -44,7 +42,6 @@ export function useGameCard() {
   };
 }
 
-/** Read a token's metadata URI using the shared public client. */
 export async function readTokenURI(tokenId: bigint): Promise<string | null> {
   const publicClient = getPublicClient(wagmiConfig);
   if (!publicClient) return null;
@@ -60,15 +57,25 @@ export async function readTokenURI(tokenId: bigint): Promise<string | null> {
   }
 }
 
-/** Fetch and parse metadata JSON from an ipfs:// URI (tries each gateway). */
-export async function fetchCardMetadata(uri: string): Promise<CardMetadata | null> {
+export async function fetchCardMetadata(uri: string, useCache = true): Promise<CardMetadata | null> {
   if (!uri) return null;
-  for (const url of toHttpUrls(uri)) {
+  
+  if (useCache) {
+    const cached = METADATA_CACHE.get(uri);
+    if (cached) return cached;
+  }
+  
+  const sources = toHttpUrls(uri);
+  for (const url of sources) {
     try {
-      const res = await fetch(url);
-      if (res.ok) return (await res.json()) as CardMetadata;
+      const res = await fetch(url, { cache: "force-cache" });
+      if (res.ok) {
+        const data = (await res.json()) as CardMetadata;
+        if (useCache) METADATA_CACHE.set(uri, data);
+        return data;
+      }
     } catch {
-      // try next gateway
+      continue;
     }
   }
   return null;

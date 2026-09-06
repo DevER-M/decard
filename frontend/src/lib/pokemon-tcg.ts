@@ -123,8 +123,10 @@ export function buildImageUrl(
   quality: "low" | "high" = "low",
   ext: "webp" | "png" | "jpg" = "webp"
 ): string | null {
-  if (!imageBase) return null;
-  return `${imageBase}/${quality}.${ext}`;
+  if (!imageBase || imageBase.trim() === "") return null;
+  const cleanBase = imageBase.trim();
+  if (!cleanBase.startsWith("http")) return null;
+  return `${cleanBase}/${quality}.${ext}`;
 }
 
 function buildQuery(params: CardSearchParams): string {
