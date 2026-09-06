@@ -18,19 +18,9 @@ import { QUERY_KEYS } from "../lib/queryKeys";
 
 export { mapCardType };
 
-export interface PokemonCardSearchResult {
-  cards: TCGdexCardBrief[];
-  isError: boolean;
-  error: Error | null;
-}
-
-/**
- * Single-page search — returns the brief array directly (TCGdex card-briefs).
- * Use this when you want a one-shot query without pagination.
- */
 export function usePokemonCardSearch(
   query: string,
-  enabled: boolean = true
+  enabled: boolean = true,
 ) {
   const q = useQuery({
     queryKey: QUERY_KEYS.POKEMON_CARD_SEARCH(query),
@@ -40,7 +30,7 @@ export function usePokemonCardSearch(
       return result.data;
     },
     enabled: enabled && !!query && query.trim().length > 0,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
   return {
     data: q.data,
@@ -49,17 +39,14 @@ export function usePokemonCardSearch(
   };
 }
 
-/**
- * Paginated search — supports `Load more` and infinite-scroll flows.
- */
 export function usePokemonCardSearchPaginated(
   query: string,
   page: number,
   itemsPerPage: number = 20,
-  enabled: boolean = true
+  enabled: boolean = true,
 ) {
   return useQuery<PaginatedCards>({
-    queryKey: ["pokemon-card-search-paged", query, page, itemsPerPage],
+    queryKey: QUERY_KEYS.POKEMON_CARD_SEARCH_PAGED(query, page),
     queryFn: async () => {
       if (!query || query.trim().length === 0) {
         return { data: [], page: 1, itemsPerPage };
@@ -83,7 +70,7 @@ export function usePokemonCardById(cardId: string) {
       return await getCardById(cardId);
     },
     enabled: !!cardId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 }
 

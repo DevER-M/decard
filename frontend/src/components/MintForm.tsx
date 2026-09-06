@@ -18,16 +18,15 @@ import { useIPFS } from "../hooks/useIPFS";
 import { useGameCard } from "../hooks/useGameCard";
 import type { CardType, Rarity } from "../types";
 import { buildImageUrl, TCGdexCardBrief, TCGdexCard } from "../lib/pokemon-tcg";
-import { RARITIES, CARD_TYPES as TYPES } from "../lib/cardOptions";
 
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = [
+const ALLOWED_IMAGE_TYPES = new Set([
   "image/png",
   "image/jpeg",
   "image/jpg",
   "image/webp",
   "image/gif",
-];
+]);
 
 const DEFAULTS = {
   name: "",
@@ -53,11 +52,6 @@ export default function MintForm() {
   const { upload, loading: uploading } = useIPFS();
   const { mint } = useGameCard();
   const { isConnected } = useAccount();
-
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchEnabled, setSearchEnabled] = useState(false);
@@ -192,7 +186,7 @@ export default function MintForm() {
         return res.blob();
       });
 
-      if (!ALLOWED_IMAGE_TYPES.includes(blob.type)) {
+      if (!ALLOWED_IMAGE_TYPES.has(blob.type)) {
         throw new Error(
           `Unsupported image type "${blob.type || "unknown"}". Allowed: PNG, JPEG, WebP, GIF.`,
         );
@@ -239,9 +233,22 @@ export default function MintForm() {
 
   const cards: TCGdexCardBrief[] = searchResult ?? [];
   const selectedCardReady = !!selectedCardId && !!selectedCard;
-  const hasSelection = mounted && selectedCardReady;
-  const cardBusy = mounted && (selectedCardLoading || selectedCardFetching) && !!selectedCardId && !selectedCard;
+  const hasSelection = selectedCardReady;
+  const cardBusy = (selectedCardLoading || selectedCardFetching) && !!selectedCardId && !selectedCard;
   const waitingForConfirmation = !!mintHash && !mintConfirmed && !mintReverted;
+
+  function getMintButtonText() {
+    if (!isConnected) return "Connect Wallet to Mint";
+    if (cardBusy) return "Loading card…";
+    if (uploading) return "Uploading to IPFS…";
+    if (minting) {
+      if (waitingForConfirmation) return "Waiting for Confirmation…";
+      if (mintPending) return "Confirming…";
+      return "Confirm in Wallet…";
+    }
+    if (!hasSelection) return "Mint Card";
+    return "Mint Card";
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
@@ -271,10 +278,10 @@ export default function MintForm() {
             />
             <button
               onClick={handleSearch}
-              disabled={mounted ? !!(isFetching || !searchQuery.trim()) : !searchQuery.trim()}
+              disabled={!!(isFetching || !searchQuery.trim())}
               className="neo-border bg-neo-secondary px-5 h-14 font-black uppercase tracking-widest text-sm neo-press-sm disabled:opacity-60 flex items-center gap-2"
             >
-              {mounted && isFetching ? (
+              {isFetching ? (
                 <Loader2 strokeWidth={3} className="h-5 w-5 animate-spin" />
               ) : (
                 <Search strokeWidth={3} className="h-5 w-5" />
@@ -283,7 +290,7 @@ export default function MintForm() {
             </button>
           </div>
 
-          {mounted && cards.length > 0 && !hasSelection && (
+          {cards.length > 0 && !hasSelection && (
             <div className="mt-6">
               <div className="text-xs font-black uppercase tracking-widest mb-3 text-black/70">
                 Pick a result
@@ -402,24 +409,10 @@ export default function MintForm() {
 
         <button
           onClick={handleMint}
-          disabled={mounted ? !!(uploading || minting || !hasSelection || !isConnected || cardBusy) : false}
+          disabled={!!(uploading || minting || !hasSelection || !isConnected || cardBusy)}
           className="neo-border bg-neo-accent neo-shadow-lg h-16 px-6 font-black uppercase tracking-widest text-xl neo-press disabled:opacity-60 flex items-center justify-center gap-3 rotate-[0.5deg]"
         >
-          {!mounted
-            ? "Mint Card"
-            : !isConnected
-              ? "Connect Wallet to Mint"
-              : cardBusy
-                ? "Loading card…"
-                : uploading
-                  ? "Uploading to IPFS…"
-                  : minting
-                    ? waitingForConfirmation
-                      ? "Waiting for Confirmation…"
-                      : mintPending
-                        ? "Confirming…"
-                        : "Confirm in Wallet…"
-                    : "Mint Card"}
+          {getMintButtonText()}
         </button>
       </div>
     </div>

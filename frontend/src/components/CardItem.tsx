@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Star, Tag } from "lucide-react";
+import { Tag } from "lucide-react";
 import type { EnrichedCard } from "../hooks/useCards";
 import { toHttpUrl } from "../lib/config";
 import { toEth } from "../lib/format";
@@ -15,10 +15,6 @@ export function getRarity(e: EnrichedCard): string {
 export function getType(e: EnrichedCard): string {
   const attr = e.metadata?.attributes?.find((a) => a.trait_type === "Type");
   return attr ? String(attr.value) : "Unknown";
-}
-
-function normalizeClass(str: string): string {
-  return str.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 }
 
 function rarityAccent(rarity: string): string {
@@ -44,8 +40,6 @@ export default function CardItem({ card, isOwner, onList, onCancel }: CardItemPr
   const [toggled, setToggled] = useState(false);
   const [imgError, setImgError] = useState(false);
 
-  const rarityClass = normalizeClass(rarity);
-  const typeClass = normalizeClass(type);
   const showOverlay = hovered || toggled;
   const accentBg = rarityAccent(rarity);
 
@@ -79,7 +73,11 @@ export default function CardItem({ card, isOwner, onList, onCancel }: CardItemPr
             "rotate-[-6deg] shadow-[3px_3px_0_0_#000]",
           ].join(" ")}
         >
-          <Star strokeWidth={3} className="h-3 w-3 text-black" fill="black" />
+          <svg className="h-3 w-3 text-black" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="7" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
           {rarity}
         </div>
 
@@ -97,7 +95,6 @@ export default function CardItem({ card, isOwner, onList, onCancel }: CardItemPr
         {/* Card image */}
         <div className="aspect-[5/7] bg-neo-muted/30 flex items-center justify-center overflow-hidden border-b-4 border-black">
           {metadata?.image && !imgError ? (
-            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={toHttpUrl(metadata.image)}
               alt={metadata?.name ?? "Card"}

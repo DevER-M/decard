@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Zap } from "lucide-react";
 import ConnectWallet from "./ConnectWallet";
 
 const links = [
@@ -25,8 +24,8 @@ export default function Nav() {
           className="group flex items-center gap-2 neo-press-sm"
           aria-label="Decard home"
         >
-          <span className="inline-flex h-10 w-10 items-center justify-center bg-neo-accent neo-border neo-shadow-sm group-hover:rotate-[-6deg] transition-transform duration-200">
-            <Zap strokeWidth={3} className="h-5 w-5 text-black" fill="black" />
+          <span className="inline-flex h-10 w-10 items-center justify-center bg-white neo-border neo-shadow-sm group-hover:rotate-[-6deg] transition-transform duration-200">
+           <img src="favicon.svg"></img>
           </span>
           <span className="font-black uppercase tracking-tighter text-2xl sm:text-3xl">
             Decard

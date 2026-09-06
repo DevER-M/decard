@@ -14,6 +14,9 @@ export const metadata: Metadata = {
   title: "Decard — Pokémon Card Marketplace",
   description:
     "Decentralized marketplace to mint, list, and buy unique Pokémon-style game cards on Ethereum Sepolia.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

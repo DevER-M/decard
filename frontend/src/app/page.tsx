@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Sparkles, Zap } from "lucide-react";
 import Nav from "../components/Nav";
 import CardGrid from "../components/CardGrid";
 import { useCards } from "../hooks/useCards";
@@ -51,64 +50,20 @@ export default function MarketplacePage() {
   return (
     <>
       <Nav />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Hero banner */}
-        <section className="relative mb-12 sm:mb-16">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 items-stretch">
-            <div className="md:col-span-3 neo-border bg-neo-secondary neo-shadow-xl p-6 sm:p-10 -rotate-[0.5deg]">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-neo-ink text-neo-bg neo-border border-4 border-neo-ink mb-4 font-black uppercase tracking-widest text-xs rotate-[-2deg]">
-                <Zap strokeWidth={3} className="h-4 w-4" fill="white" />
-                Sepolia Testnet
-              </div>
-              <h1 className="text-5xl sm:text-7xl md:text-8xl font-black uppercase tracking-tighter leading-[0.85]">
-                <span className="block">Pokémon</span>
-                <span className="block -ml-1">
-                  <span className="text-neo-bg" style={{ WebkitTextStroke: "2px black" }}>
-                    Cards
-                  </span>
-                </span>
-                <span className="block">on Chain.</span>
-              </h1>
-              <p className="mt-5 max-w-xl font-bold text-base sm:text-lg">
-                Mint, list & trade unique 1/1 Pokémon-style cards. Every card
-                is an ERC-721 NFT pinned to IPFS.
-              </p>
+        <section className="mb-10 sm:mb-12">
+          <div className="neo-border bg-neo-secondary neo-shadow-xl p-6 sm:p-10 text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-neo-ink text-neo-bg neo-border border-4 border-neo-ink mb-4 font-black uppercase tracking-widest text-xs">
+              Sepolia
             </div>
-            <div className="md:col-span-2 grid grid-cols-2 gap-4">
-              <div className="neo-border bg-neo-accent neo-shadow-lg p-5 rotate-[2deg]">
-                <Sparkles strokeWidth={3} className="h-8 w-8" />
-                <div className="mt-3 font-black text-3xl uppercase tracking-tighter">
-                  1/1
-                </div>
-                <div className="text-xs font-black uppercase tracking-widest">
-                  Every card unique
-                </div>
-              </div>
-              <div className="neo-border bg-neo-muted neo-shadow-lg p-5 -rotate-[2deg]">
-                <div className="font-black text-3xl uppercase tracking-tighter">
-                  IPFS
-                </div>
-                <div className="text-xs font-black uppercase tracking-widest">
-                  Permanent metadata
-                </div>
-              </div>
-              <div className="neo-border bg-neo-bg neo-shadow-lg p-5 -rotate-[2deg]">
-                <div className="font-black text-3xl uppercase tracking-tighter">
-                  ETH
-                </div>
-                <div className="text-xs font-black uppercase tracking-widest">
-                  Direct to seller
-                </div>
-              </div>
-              <div className="neo-border bg-neo-ink text-neo-bg neo-shadow-lg p-5 rotate-[2deg]">
-                <div className="font-black text-3xl uppercase tracking-tighter">
-                  0% fee
-                </div>
-                <div className="text-xs font-black uppercase tracking-widest">
-                  Peer to peer
-                </div>
-              </div>
-            </div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight">
+              Decard
+            </h1>
+            <p className="mt-3 max-w-xl mx-auto font-bold text-base sm:text-lg">
+              Mint, list, and trade unique Pokémon-style cards on Ethereum.
+              Each card is an ERC-721 NFT stored on IPFS.
+            </p>
           </div>
         </section>
 
@@ -142,7 +97,7 @@ export default function MarketplacePage() {
             ))}
           </select>
           <div className="flex-1" />
-          <div className="inline-flex items-center gap-2 px-3 py-2 neo-border bg-neo-muted/40 font-black uppercase tracking-widest text-xs">
+          <div className="neo-border bg-neo-ink text-neo-bg font-black uppercase tracking-widest text-xs px-3 py-1">
             {filtered.length} {filtered.length === 1 ? "Card" : "Cards"}
           </div>
         </section>
