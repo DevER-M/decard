@@ -101,7 +101,7 @@ frontend/
 
 ## Screenshots
 
-![alt text](image.png)
+![alt text](images/image.png)
 
 ## License
 
